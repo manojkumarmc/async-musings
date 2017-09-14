@@ -4,7 +4,7 @@ import async_timeout
 import pprint
 
 
-proxy_url = 'http://165.225.96.34:9480/'
+proxy_url = 'http://proxy.com:8080'
 
 async def fetch(session, url):
     with async_timeout.timeout(10):
