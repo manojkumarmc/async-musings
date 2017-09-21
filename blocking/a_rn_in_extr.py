@@ -1,22 +1,28 @@
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
 
-def blocker():
+def blocker(x):
     from time import sleep
-    sleep(3)
-    print('slept for 3 seconds')
+    sleep(x)
+    print('slept for {0} seconds'.format(x))
 
 
-async def main(loop, exctr):
-    loop.run_in_executor(exctr, blocker, None)
+async def main(exctr):
+    loop = asyncio.get_event_loop()
+    bt = [
+        loop.run_in_executor(exctr, blocker, 5)
+    ]
+    c, p = await asyncio.wait(bt)
+    rs = [t.result() for t in c]
+    print(rs)
 
 loop = asyncio.get_event_loop()
-exctr = ProcessPoolExecutor(3)
-loop.set_default_executor(exctr)
-task = [asyncio.ensure_future(main(loop, exctr))]
-wt = asyncio.wait(task)
-loop.run_until_complete(wt)
-exctr.shutdown(wait=True)
+exctr = ProcessPoolExecutor(max_workers=3)
+# task = [asyncio.ensure_future(main(exctr))]
+# wt = asyncio.wait(task)
+loop.run_until_complete(
+    asyncio.ensure_future(main(exctr))
+)
 loop.close()
 
 
